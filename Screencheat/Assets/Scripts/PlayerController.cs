@@ -13,6 +13,7 @@ public class PlayerController : MonoBehaviour
     Vector3 smoothMoveVelocity;
     Vector3 moveAmount;
     PhotonView PV;
+    //Camera otherCamera;
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -22,9 +23,15 @@ public class PlayerController : MonoBehaviour
     {
         if(!PV.IsMine)
         {
-           Destroy(GetComponentInChildren<Camera>().gameObject);
-           Destroy(rb);//fix janky
+            //test camera
+            //Destroy(GetComponentInChildren<Camera>().gameObject);
+            /* otherCamera = GetComponentInChildren<Camera>();
+             otherCamera.rect = new Rect(0, 0, 1, 0.5f);*/
+            GetComponentInChildren<Camera>().rect = new Rect(0, 0, 1, 0.5f);
+            Destroy(rb);//fix janky
         }
+        //test camera
+        //cameraHolder.AddComponent<Camera>;
     }
 
 
