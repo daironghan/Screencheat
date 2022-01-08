@@ -22,7 +22,7 @@ public class ScoreBoard : MonoBehaviourPunCallbacks
     {
         foreach (Player player in PhotonNetwork.PlayerList)
         {
-            ScoreBoard.FindObjectOfType<ScoreBoardItem>
+            
         }
     }
     void AddScoreboardItem(Player player)

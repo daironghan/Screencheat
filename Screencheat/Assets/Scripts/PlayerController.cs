@@ -2,6 +2,8 @@ using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -11,11 +13,15 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _mouseSensitivity = 7f;
     [SerializeField] private float _minCameraView = -70f, _maxCameraView = 80f;
     PhotonView PV;
+    [SerializeField] TMP_Text  txtScore;
+    [SerializeField] TMP_Text  txtOver;
+    [SerializeField] Button btnMenu;
     Rigidbody rb;
     private CharacterController _charController;
     private Camera _camera;
     private float xRotation = 0f;
     private Vector3 _playerVelocity;
+    
 
     void Awake()
     {
@@ -35,8 +41,13 @@ public class PlayerController : MonoBehaviour
         {
             GetComponentInChildren<Camera>().rect = new Rect(0, 0, 1, 0.5f);
             Destroy(rb);
+            Destroy(GetComponentInChildren<TextMeshProUGUI>());
         }
+        txtScore.text = "Score: " + score;
     }
+
+
+
 
     void Update()
     {
@@ -52,6 +63,7 @@ public class PlayerController : MonoBehaviour
         if (Input.GetMouseButtonDown(0)) {
             shoot();
         }
+        
     }
 
     private void PlayerMovement()
@@ -87,9 +99,25 @@ public class PlayerController : MonoBehaviour
             if (hit.transform.tag == "Enemy") {
                 score++;
                 Debug.Log(score);
+                txtScore.text = "Score: " + score;
             }
         }
+        if(score == 5)
+        {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+            txtOver.gameObject.SetActive(true);
+            btnMenu.gameObject.SetActive(true);
+            Time.timeScale = 0f;
+            //StartCoroutine(wait());
+            //PhotonNetwork.LoadLevel(0);
+        }
     }
+    /*
+    IEnumerator wait()
+    {
+        yield return new WaitForSeconds(3);
+    }*/
 }
 
 

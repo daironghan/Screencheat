@@ -16,7 +16,6 @@ public class RoomListItem : MonoBehaviour
     }
     public void OnClick()
     {   
-        
         PhotonLauncher.Instance.JoinRoom(info);
     }
 }
