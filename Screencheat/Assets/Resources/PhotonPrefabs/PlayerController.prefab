@@ -248,6 +248,7 @@ MonoBehaviour:
   walkSpeed: 2
   jumpForce: 300
   smoothTime: 0.15
+  score: 10
 --- !u!54 &2214045969284525509
 Rigidbody:
   m_ObjectHideFlags: 0
