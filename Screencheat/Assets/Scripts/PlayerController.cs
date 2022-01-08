@@ -5,14 +5,18 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] GameObject cameraHolder;
-    [SerializeField] float mouseSensitivity, runSpeed, walkSpeed, jumpForce, smoothTime;
-    Rigidbody rb;
-    float verticalLookRoatation;
-    bool grounded;
-    Vector3 smoothMoveVelocity;
-    Vector3 moveAmount;
+    public static int score;
+    [SerializeField] private float jumpSpeed = 10f;
+    [SerializeField] private float _speed = 7f;
+    [SerializeField] private float _mouseSensitivity = 7f;
+    [SerializeField] private float _minCameraView = -70f, _maxCameraView = 80f;
     PhotonView PV;
+    Rigidbody rb;
+    private CharacterController _charController;
+    private Camera _camera;
+    private float xRotation = 0f;
+    private Vector3 _playerVelocity;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -20,52 +24,72 @@ public class PlayerController : MonoBehaviour
     }
     void Start()
     {
-        if(!PV.IsMine)
+        score = 0;
+        _charController = GetComponent<CharacterController>();
+        _camera = Camera.main;
+
+        if (_charController == null) Debug.Log("No character attached to player");
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        if (!PV.IsMine)
         {
-           Destroy(GetComponentInChildren<Camera>().gameObject);
-           Destroy(rb);//fix janky
+            GetComponentInChildren<Camera>().rect = new Rect(0, 0, 1, 0.5f);
+            Destroy(rb);
         }
     }
-
 
     void Update()
     {
-        if (!PV.IsMine)
-            return;
-        Look();
-        Move();
-        Jump();
-
-    }
-    void Move()
-    {
-        Vector3 moveDir = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
-        moveAmount = Vector3.SmoothDamp(moveAmount, moveDir * (Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed), ref smoothMoveVelocity, smoothTime);//if left key press run
-
-    }
-    void Look()//camera follow mouse
-    {
-        transform.Rotate(Vector3.up * Input.GetAxisRaw("Mouse X") * mouseSensitivity);
-        verticalLookRoatation += Input.GetAxis("Mouse Y") * mouseSensitivity;
-        verticalLookRoatation = Mathf.Clamp(verticalLookRoatation, -90f, 90f);
-        cameraHolder.transform.localEulerAngles = Vector3.left * verticalLookRoatation;
-    }
-    void Jump()
-    {
-        if (Input.GetKeyDown(KeyCode.Space) && grounded)
-        {
-            rb.AddForce(transform.up * jumpForce);
+       if (!PV.IsMine)
+           return;
+        PlayerMovement();
+        float mouseX = Input.GetAxis("Mouse X") * _mouseSensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * _mouseSensitivity * Time.deltaTime;
+        xRotation -= mouseY;
+        xRotation = Mathf.Clamp(xRotation, _minCameraView, _maxCameraView);
+        _camera.transform.localRotation = Quaternion.Euler(xRotation, 0, 0);
+        transform.Rotate(Vector3.up * mouseX);
+        if (Input.GetMouseButtonDown(0)) {
+            shoot();
         }
     }
 
-    public void SetGroundedState(bool onGround)
+    private void PlayerMovement()
     {
-        grounded = onGround;
+        float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
+        Vector3 movement = transform.forward * vertical + transform.right * horizontal  ;
+        
+        if (_charController.isGrounded) {
+            if (Input.GetButton("Jump"))
+                movement.y = jumpSpeed;
+        }
+        movement.y -= 9.18f * Time.deltaTime;
+        _charController.Move(movement * Time.deltaTime * _speed);
     }
+
     private void FixedUpdate()
     {
-        if (!PV.IsMine)
-            return;
-        rb.MovePosition(rb.position + transform.TransformDirection(moveAmount) * Time.fixedDeltaTime);
+        if (transform.position.y < 1.08f) {
+            Debug.Log("00000");
+            transform.position = Vector3.right * transform.position.x + Vector3.up * 1.08f + Vector3.forward * transform.position.z;
+            _playerVelocity.y = 0f;
+        }
+        else {
+            _playerVelocity.y += -9.18f * Time.deltaTime;
+            _charController.Move(_playerVelocity * Time.deltaTime);
+        }
+    }
+    private void shoot()
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(_camera.transform.position, _camera.transform.forward, out hit)) {
+            if (hit.transform.tag == "Enemy") {
+                score++;
+                Debug.Log(score);
+            }
+        }
     }
 }
+
+

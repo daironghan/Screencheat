@@ -33,7 +33,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
     {
         if(scene.buildIndex == 1)//game scene, instantiate 
         {
-            PhotonNetwork.Instantiate(Path.Combine("PhotonPrefabs", "PlayerManager"), Vector3.zero, Quaternion.identity);//Spawn point
+            PhotonNetwork.Instantiate(Path.Combine("PhotonPrefabs", "player"), new Vector3(-0.8661098f, 3.475175f, 18.20544f), Quaternion.identity);//Spawn point
         }
     }
     void Start()
