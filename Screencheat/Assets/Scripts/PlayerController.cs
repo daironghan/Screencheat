@@ -15,6 +15,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _mouseSensitivity = 7f;
     [SerializeField] private float _minCameraView = -70f, _maxCameraView = 80f;
     PhotonView PV;
+    [SerializeField] GameObject _muzzleFlashvfx;
     [SerializeField] TMP_Text  txtScore;
     [SerializeField] TMP_Text  txtOver;
     [SerializeField] Button btnMenu;
@@ -73,7 +74,11 @@ public class PlayerController : MonoBehaviour
             timeStamp = Time.time + 1f;
             shoot();
         }
-        
+        if (Time.time < timeStamp)
+            _muzzleFlashvfx.SetActive(true);
+        else
+            _muzzleFlashvfx.SetActive(false);
+
     }
 
     private void PlayerMovement()
